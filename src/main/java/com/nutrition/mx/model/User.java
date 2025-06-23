@@ -12,7 +12,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Document(collection = "users")
-@Data@NoArgsConstructor
+@Data
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class User {
@@ -30,6 +31,6 @@ public class User {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private NutriologoInfo nutriologoInfo; // null si no aplica
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private PacienteInfo pacienteInfo;
+    private PacienteProfile pacienteProfile;
 }
 

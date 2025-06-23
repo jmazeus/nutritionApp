@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 public class PacienteInfo {
     private Date fechaNacimiento;
     private String genero;
+    private String telefono;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String estadoSalud;
 }

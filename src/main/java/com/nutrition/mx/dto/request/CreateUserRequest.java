@@ -6,6 +6,7 @@ import com.nutrition.mx.enums.RoleName;
 import com.nutrition.mx.model.NutriologoInfo;
 import com.nutrition.mx.model.PacienteInfo;
 
+import com.nutrition.mx.model.PacienteProfile;
 import lombok.Data;
 import lombok.ToString;
 
@@ -21,5 +22,5 @@ public class CreateUserRequest {
     private Boolean isSuperUser;
     
     private NutriologoInfo nutriologoInfo;
-    private PacienteInfo pacienteInfo;
+    private PacienteProfile pacienteProfile;
 }

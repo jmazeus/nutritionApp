@@ -20,12 +20,13 @@ import lombok.ToString;
 public class PacienteProfile {
     @Id
     private String id;
-    private String userId; // Referencia al User
+    private PacienteInfo pacienteInfo;
     private List<HabitoAlimenticio> habitosAlimenticios;
     private List<Antropometria> antropometriaHistorial;
     private HistoriaMedica historiaMedica;
     private List<EvaluacionLaboratorio> evaluacionesLaboratorio;
     private List<AnalisisDieta> analisisDieta;
-    private List<String> nutriologosIds; // Historial de nutriólogos que lo han atendido
+    private List<String> nutriologosIds; // Historial de nutriólogos
+    private String nutriologoActualId;    // Nutriólogo actual
 }
 

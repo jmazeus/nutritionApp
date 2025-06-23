@@ -16,7 +16,9 @@ import lombok.ToString;
 @ToString
 @Builder
 public class HabitoAlimenticio {
-    private String descripcion;
-    private Date fechaRegistro;
+    private int numeroComidasDia;
+    private boolean consumeAgua;
+    private int litrosAguaDia;
+    private String frecuenciaFrutasVerduras;
 }
 
