@@ -29,7 +29,7 @@ public class User {
     private boolean isSuperUser;
     
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private NutriologoInfo nutriologoInfo; // null si no aplica
+    private EspecialistaInfo especialistaInfo; // null si no aplica
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private PacienteProfile pacienteProfile;
 }

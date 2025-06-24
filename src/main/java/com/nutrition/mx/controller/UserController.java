@@ -3,6 +3,8 @@ package com.nutrition.mx.controller;
 
 import com.nutrition.mx.dto.request.CreateUserRequest;
 import com.nutrition.mx.service.UserService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,7 +23,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody CreateUserRequest request, Authentication authentication) {
+    public ResponseEntity<?> createUser(@Valid @RequestBody CreateUserRequest request, Authentication authentication) {
     	try {
     		log.info(request.toString());
             return userService.createUser(request, authentication.getName());

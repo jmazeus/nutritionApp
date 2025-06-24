@@ -3,7 +3,7 @@ package com.nutrition.mx.enums;
 public enum RoleName {
     SUPER_ADMIN,
     CLINIC_ADMIN,
-    NUTRIOLOGO,
+    ESPECIALISTA,
     PACIENTE,
     ASISTENTE;
 

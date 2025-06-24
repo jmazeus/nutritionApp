@@ -16,5 +16,5 @@ public interface UserRepository extends MongoRepository<User, String> {
 	Optional<User> findByEmailAndClinicId(String email, String clinicId);
 	Optional<User> findByUserId(String userId);
 	List<User> findByUserIdIn(Collection<String> userIds);
-	Optional<User> findByNutriologoInfo_CedulaProfesional(String cedulaProfesional);
+	Optional<User> findByEspecialistaInfo_CedulaProfesional(String cedulaProfesional);
 }

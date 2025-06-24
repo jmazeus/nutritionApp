@@ -35,7 +35,7 @@ public class CitaService {
 		User usuarioQueAgenda = userRepository.findByUserId(userLogged.getUserId())
 				.orElseThrow(() -> new UsernameNotFoundException("Usuario que agenda no encontrado"));
 
-		boolean esNutriologo = usuarioQueAgenda.getRoles().contains(RoleName.NUTRIOLOGO);
+		boolean esNutriologo = usuarioQueAgenda.getRoles().contains(RoleName.ESPECIALISTA);
 		String nutriologoId;
 		if (esNutriologo) {
 			nutriologoId = usuarioQueAgenda.getUserId();

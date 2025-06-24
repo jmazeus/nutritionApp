@@ -15,7 +15,7 @@ public class RolePermissionMapping {
                 return EnumSet.allOf(Permission.class);
             case CLINIC_ADMIN:
                 return EnumSet.of(Permission.USUARIOS_CREAR, Permission.USUARIOS_VER, Permission.CITAS_VER, Permission.CLINICA_VER);
-            case NUTRIOLOGO:
+            case ESPECIALISTA:
                 return EnumSet.of(Permission.CITAS_CREAR, Permission.CITAS_VER, Permission.PACIENTES_VER);
             case ASISTENTE:
                 return EnumSet.of(Permission.CITAS_CREAR, Permission.CITAS_VER);

@@ -3,10 +3,12 @@ package com.nutrition.mx.exception;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -50,10 +52,10 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
 		return buildErrorResponse("Error inesperado: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
-	
+
 	@ExceptionHandler(IllegalStateException.class)
-	public ResponseEntity<Map<String, Object>> handlerIllegalStateException(IllegalStateException ex){
-		return buildErrorResponse("Error al generar la petición: "+ ex.getMessage(), HttpStatus.BAD_REQUEST);
+	public ResponseEntity<Map<String, Object>> handlerIllegalStateException(IllegalStateException ex) {
+		return buildErrorResponse("Error al generar la petición: " + ex.getMessage(), HttpStatus.BAD_REQUEST);
 	}
 
 	private ResponseEntity<Map<String, Object>> buildErrorResponse(String message, HttpStatus status) {
@@ -63,5 +65,14 @@ public class GlobalExceptionHandler {
 		error.put("error", status.getReasonPhrase());
 		error.put("message", message);
 		return ResponseEntity.status(status).body(error);
+	}
+
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<Object> handleValidationException(MethodArgumentNotValidException ex) {
+		String message = ex.getBindingResult().getFieldErrors().stream().map(error -> error.getDefaultMessage())
+				.distinct().collect(Collectors.joining("\n"));
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", message);
+		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 }

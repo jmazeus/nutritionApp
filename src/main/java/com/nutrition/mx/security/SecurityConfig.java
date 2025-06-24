@@ -41,12 +41,12 @@ public class SecurityConfig {
 	                .hasAnyAuthority(
 	                    RoleName.SUPER_ADMIN.name(),
 	                    RoleName.CLINIC_ADMIN.name(),
-	                    RoleName.NUTRIOLOGO.name()
+	                    RoleName.ESPECIALISTA.name()
 	                )
 	                .requestMatchers(HttpMethod.POST, "/api/citas/**")
 	                .hasAnyAuthority(
 	                		RoleName.CLINIC_ADMIN.name(),
-	                		RoleName.NUTRIOLOGO.name(),
+	                		RoleName.ESPECIALISTA.name(),
 	                		RoleName.ASISTENTE.name())
 	            .anyRequest().authenticated()
 	        )
