@@ -18,11 +18,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	private static final Logger log = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
 
 	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-	    User user = userRepository.findByUsername(username)
-	            .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+	public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
+	    User user = userRepository.findByUsername(usernameOrEmail)
+	            .or(() -> userRepository.findByEmail(usernameOrEmail))
+	            .orElseThrow(() -> new UsernameNotFoundException("Usuario o email no encontrado: " + usernameOrEmail));
 
-	    
 	    UserDetails uDetails = new org.springframework.security.core.userdetails.User(
 	            user.getUsername(),
 	            user.getPassword(),

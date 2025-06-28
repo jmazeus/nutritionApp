@@ -26,6 +26,12 @@ public class UserService {
 	private final SequenceGeneratorService sequenceGeneratorService;
 	private final PatientService patientService;
 	private final EspecialistaService especialistaService;
+	
+	public User findByUsernameOrEmail(String usernameOrEmail) {
+	    return userRepository.findByUsername(usernameOrEmail)
+	        .or(() -> userRepository.findByEmail(usernameOrEmail))
+	        .orElseThrow(() -> new UsernameNotFoundException("Usuario o email no encontrado: " + usernameOrEmail));
+	}
 
 	public ResponseEntity<?> createSuperUser(CreateUserRequest user) {
 		User newUser = User.builder().username(user.getUsername()).password(passwordEncoder.encode(user.getPassword()))

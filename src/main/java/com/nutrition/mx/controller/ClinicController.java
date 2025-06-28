@@ -31,9 +31,22 @@ public class ClinicController {
 	@PostMapping
 	public ResponseEntity<Clinic> createClinic(@Valid @RequestBody Clinic clinic, Authentication authentication) {
 		String userId = SecurityUtils.getCurrentUserId();
+		String userName = SecurityUtils.getCurrentUsername();
 
-		User user = userRepository.findByUserId(userId)
-				.orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+		User user;
+
+		if (userId != null && !userId.isBlank()) {
+		    user = userRepository.findByUserId(userId)
+		            .orElseGet(() -> userRepository.findByUsername(userName)
+		                    .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado")));
+		} else if (userName != null && !userName.isBlank()) {
+		    user = userRepository.findByUsername(userName)
+		            .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+		} else {
+		    throw new UsernameNotFoundException("No se pudo determinar el usuario autenticado");
+		}
+		
+		clinic.setCreatedBy(user.getUsername());
 
 		Clinic savedClinic = clinicService.crearClinica(clinic, user);
 		return ResponseEntity.status(HttpStatus.CREATED).body(savedClinic);
@@ -52,8 +65,34 @@ public class ClinicController {
     	String username = SecurityUtils.getCurrentUsername();
     	userLogged.setUsername(username);
     	userLogged.setUserId(userId);
+    	
 		ClinicResponse response = clinicService.findClinics(nameClinic, dateInit, dateEnd, createdBy, page, size,
 				sortBy, direction, userLogged);
 		return ResponseEntity.ok(response);
+	}
+	
+	@PutMapping("/{clinicId}")
+	public ResponseEntity<Clinic> updateClinic(
+	        @PathVariable String clinicId,
+	        @Valid @RequestBody Clinic clinicUpdate,
+	        Authentication authentication) {
+
+	    String userId = SecurityUtils.getCurrentUserId();
+	    String userName = SecurityUtils.getCurrentUsername();
+
+	    User user;
+	    if (userId != null && !userId.isBlank()) {
+	        user = userRepository.findByUserId(userId)
+	                .orElseGet(() -> userRepository.findByUsername(userName)
+	                        .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado")));
+	    } else if (userName != null && !userName.isBlank()) {
+	        user = userRepository.findByUsername(userName)
+	                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+	    } else {
+	        throw new UsernameNotFoundException("No se pudo determinar el usuario autenticado");
+	    }
+
+	    Clinic updatedClinic = clinicService.actualizarClinica(clinicId, clinicUpdate, user);
+	    return ResponseEntity.ok(updatedClinic);
 	}
 }

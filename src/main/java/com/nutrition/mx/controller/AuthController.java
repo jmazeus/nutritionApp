@@ -30,9 +30,16 @@ public class AuthController {
 
 	@PostMapping("/login")
 	public AuthResponse login(@RequestBody AuthRequest request) {
+//		authManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+//
+//		User user = userRepository.findByUsername(request.getUsername()).orElseThrow();
+//		String jwt = jwtService.generateToken(user);
+//
+//		return new AuthResponse(jwt);
 		authManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
-		User user = userRepository.findByUsername(request.getUsername()).orElseThrow();
+		// Nuevo: Busca usuario por username O email mediante el service
+		User user = userService.findByUsernameOrEmail(request.getUsername());
 		String jwt = jwtService.generateToken(user);
 
 		return new AuthResponse(jwt);

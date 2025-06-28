@@ -60,76 +60,86 @@ public class ClinicService {
 	}
 
 	public ClinicResponse findClinics(String name, Date dateInit, Date dateEnd, String createdBy, int page, int size,
-			String sortBy, String direction,User usuarioAutenticado) {
-		
-		 User currentUser = userRepository.findByUsername(usuarioAutenticado.getUsername())
-		            .orElseThrow(() -> new UsernameNotFoundException("Usuario actual no encontrado"));
-		    PermissionChecker.verificarPermiso(currentUser, Permission.CLINICA_VER);
+			String sortBy, String direction, User usuarioAutenticado) {
 
-		    List<Criteria> criteriaList = new ArrayList<>();
+		User currentUser = userRepository.findByUsername(usuarioAutenticado.getUsername())
+				.orElseThrow(() -> new UsernameNotFoundException("Usuario actual no encontrado"));
+		PermissionChecker.verificarPermiso(currentUser, Permission.CLINICA_VER);
 
-		    if (name != null && !name.isEmpty()) {
-		        criteriaList.add(Criteria.where("name").regex(name, "i"));
-		    }
+		List<Criteria> criteriaList = new ArrayList<>();
 
-		    if (dateInit != null && dateEnd != null) {
-		        criteriaList.add(Criteria.where("createdAt").gte(dateInit).lte(dateEnd));
-		    } else if (dateInit != null) {
-		        criteriaList.add(Criteria.where("createdAt").gte(dateInit));
-		    } else if (dateEnd != null) {
-		        criteriaList.add(Criteria.where("createdAt").lte(dateEnd));
-		    }
+		if (name != null && !name.isEmpty()) {
+			criteriaList.add(Criteria.where("name").regex(name, "i"));
+		}
 
-		    if (createdBy != null && !createdBy.isEmpty()) {
-		        criteriaList.add(Criteria.where("createdBy").is(createdBy));
-		    }
+		if (dateInit != null && dateEnd != null) {
+			criteriaList.add(Criteria.where("createdAt").gte(dateInit).lte(dateEnd));
+		} else if (dateInit != null) {
+			criteriaList.add(Criteria.where("createdAt").gte(dateInit));
+		} else if (dateEnd != null) {
+			criteriaList.add(Criteria.where("createdAt").lte(dateEnd));
+		}
 
-		    Criteria finalCriteria = new Criteria();
-		    if (!criteriaList.isEmpty()) {
-		        finalCriteria.andOperator(criteriaList.toArray(new Criteria[0]));
-		    }
+		if (createdBy != null && !createdBy.isEmpty()) {
+			criteriaList.add(Criteria.where("createdBy").is(createdBy));
+		}
 
-		    Query query = new Query(finalCriteria);
+		Criteria finalCriteria = new Criteria();
+		if (!criteriaList.isEmpty()) {
+			finalCriteria.andOperator(criteriaList.toArray(new Criteria[0]));
+		}
 
-		    long total = mongoTemplate.count(query, Clinic.class);
+		Query query = new Query(finalCriteria);
 
-		    // Paginación y ordenamiento
-		    Sort.Direction sortDirection = Sort.Direction.fromString(direction);
-		    Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
-		    query.with(pageable);
+		long total = mongoTemplate.count(query, Clinic.class);
 
-		    List<Clinic> clinics = mongoTemplate.find(query, Clinic.class);
+		// Paginación y ordenamiento
+		Sort.Direction sortDirection = Sort.Direction.fromString(direction);
+		Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+		query.with(pageable);
 
-		    // Obtener los IDs únicos de createdBy
-		    Set<String> userIds = clinics.stream()
-		            .map(Clinic::getCreatedBy)
-		            .filter(Objects::nonNull)
-		            .collect(Collectors.toSet());
+		List<Clinic> clinics = mongoTemplate.find(query, Clinic.class);
 
-		    // Consultar los nombres de los usuarios que crearon las clínicas
-		    List<User> users = userRepository.findByUserIdIn(userIds);
-		    Map<String, String> userIdToNameMap = users.stream()
-		            .collect(Collectors.toMap(User::getUserId, User::getFullName));
+		// Obtener los IDs únicos de createdBy
+		Set<String> userIds = clinics.stream().map(Clinic::getCreatedBy).filter(Objects::nonNull)
+				.collect(Collectors.toSet());
 
-		    // Transformar clínicas a DTO con nombre del creador
-		    List<ClinicDto> dtos = clinics.stream()
-		            .map(clinic -> ClinicDto.builder()
-		                    .id(clinic.getId())
-		                    .name(clinic.getName())
-		                    .address(clinic.getAddress())
-		                    .createdBy(clinic.getCreatedBy())
-		                    .createdByName(userIdToNameMap.getOrDefault(clinic.getCreatedBy(), "Desconocido"))
-		                    .clinicId(clinic.getClinicId())
-		                    .telephone(clinic.getTelephone())
-		                    .email(clinic.getEmail())
-		                    .url(clinic.getUrl())
-		                    .createdAt(clinic.getCreatedAt())
-		                    .build())
-		            .collect(Collectors.toList());
+		// Consultar los nombres de los usuarios que crearon las clínicas
+		List<User> users = userRepository.findByUserIdIn(userIds);
+		Map<String, String> userIdToNameMap = users.stream()
+				.collect(Collectors.toMap(User::getUserId, User::getFullName));
 
-		    int totalPages = (int) Math.ceil((double) total / size);
-		    boolean last = (page + 1) * size >= total;
+		// Transformar clínicas a DTO con nombre del creador
+		List<ClinicDto> dtos = clinics.stream()
+				.map(clinic -> ClinicDto.builder().id(clinic.getId()).name(clinic.getName())
+						.address(clinic.getAddress()).createdBy(clinic.getCreatedBy())
+						.createdByName(userIdToNameMap.getOrDefault(clinic.getCreatedBy(), "Desconocido"))
+						.clinicId(clinic.getClinicId()).telephone(clinic.getTelephone()).email(clinic.getEmail())
+						.url(clinic.getUrl()).createdAt(clinic.getCreatedAt()).build())
+				.collect(Collectors.toList());
 
-		    return new ClinicResponse(dtos, page, size, total, totalPages, last);
+		int totalPages = (int) Math.ceil((double) total / size);
+		boolean last = (page + 1) * size >= total;
+
+		return new ClinicResponse(dtos, page, size, total, totalPages, last);
+	}
+
+	public Clinic actualizarClinica(String clinicId, Clinic clinicUpdate, User user) {
+		if (!user.getRoles().contains(RoleName.SUPER_ADMIN)) {
+			throw new AccessDeniedException("No tienes permisos para actualizar clínicas");
+		}
+
+		Clinic existingClinic = clinicRepository.findByClinicId(clinicId)
+				.orElseThrow(() -> new IllegalArgumentException("Clínica no encontrada"));
+
+		// Actualiza solo los campos necesarios, aquí un ejemplo:
+		existingClinic.setName(clinicUpdate.getName());
+		existingClinic.setAddress(clinicUpdate.getAddress());
+		existingClinic.setTelephone(clinicUpdate.getTelephone());
+		existingClinic.setEmail(clinicUpdate.getEmail());
+		existingClinic.setUrl(clinicUpdate.getUrl());
+		// Puedes agregar más campos según lo que permita tu modelo
+
+		return clinicRepository.save(existingClinic);
 	}
 }
