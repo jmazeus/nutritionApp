@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nutrition.mx.dto.AuthRequest;
 import com.nutrition.mx.dto.AuthResponse;
-import com.nutrition.mx.dto.request.CreateUserRequest;
 import com.nutrition.mx.model.User;
 import com.nutrition.mx.repository.UserRepository;
 import com.nutrition.mx.security.JwtService;
@@ -38,10 +37,6 @@ public class AuthController {
 		return new AuthResponse(jwt);
 	}
 
-	@PostMapping("/superuser")
-	public ResponseEntity<?> createSuperUser(@RequestBody CreateUserRequest user) {
-		return userService.createSuperUser(user);
-	}
 
 	@PostMapping("/clinic-user")
 	public ResponseEntity<?> createUserForClinic(@RequestParam String clinicId, @RequestBody User user) {

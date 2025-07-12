@@ -33,15 +33,18 @@ public class SecurityConfig {
 	        .csrf(csrf -> csrf.disable())
 	        .cors(Customizer.withDefaults())
 	        .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-	        .authorizeHttpRequests(auth -> auth
-	            .requestMatchers("/api/auth/**").permitAll()
-	            .requestMatchers(HttpMethod.POST, "/api/clinics/**")
-	                .hasAuthority(RoleName.SUPER_ADMIN.name())
-	            .requestMatchers(HttpMethod.POST, "/api/users/**")
-	                .hasAnyAuthority(
-	                    RoleName.SUPER_ADMIN.name(),
-	                    RoleName.CLINIC_ADMIN.name(),
-	                    RoleName.ESPECIALISTA.name()
+                .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                    .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/clinics/**")
+                        .hasAuthority(RoleName.SUPER_ADMIN.name())
+                    .requestMatchers(HttpMethod.POST, "/api/admins/**")
+                        .hasAuthority(RoleName.SUPER_ADMIN.name())
+                    .requestMatchers(HttpMethod.POST, "/api/users/**")
+                        .hasAnyAuthority(
+                            RoleName.SUPER_ADMIN.name(),
+                            RoleName.CLINIC_ADMIN.name(),
+                            RoleName.ESPECIALISTA.name()
 	                )
 	                .requestMatchers(HttpMethod.POST, "/api/citas/**")
 	                .hasAnyAuthority(
